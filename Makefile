@@ -5,8 +5,8 @@ PROGNAME=4nes4snes-m8
 CPU=atmega8
 
 CFLAGS=-Wall -Os -Iusbdrv -I. -mmcu=$(CPU) -DF_CPU=12000000L #-DDEBUG_LEVEL=1
-LDFLAGS=-Wl,-Map=$(PROGNAME).map -mmcu=$(CPU) 
-AVRDUDE=avrdude -p m8 -P usb -c avrispmkII
+LDFLAGS=-Wl,-Map=$(PROGNAME).map -mmcu=$(CPU)
+AVRDUDE=avrdude -p m8 -c usbasp
 
 OBJS=usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o fournsnes.o devdesc.o
 
@@ -38,7 +38,7 @@ $(ELFFILE): $(OBJS)
 	$(LD) $(LDFLAGS) -o $(ELFFILE) $(OBJS)
 
 $(HEXFILE):	$(ELFFILE)
-	rm -f $(HEXFILE) 
+	rm -f $(HEXFILE)
 	avr-objcopy -j .text -j .data -O ihex $(ELFFILE) $(HEXFILE)
 	./checksize $(ELFFILE)
 
@@ -74,4 +74,3 @@ chip_erase:
 
 reset:
 	$(AVRDUDE) -B 1.0 -F
-	
