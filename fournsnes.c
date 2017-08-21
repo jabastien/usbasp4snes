@@ -5,7 +5,7 @@
  * License: GPLv2
  * Tabsize: 4
  */
-#define F_CPU   12000000L  
+#define F_CPU   12000000L
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -18,26 +18,26 @@
 #define GAMEPAD_BYTES	8	/* 2 byte per snes controller * 4 controllers */
 
 /******** IO port definitions **************/
-#define SNES_LATCH_DDR	DDRC
-#define SNES_LATCH_PORT	PORTC
-#define SNES_LATCH_BIT	(1<<4)
+#define SNES_LATCH_DDR	DDRD
+#define SNES_LATCH_PORT	PORTD
+#define SNES_LATCH_BIT	(1<<0)
 
-#define SNES_CLOCK_DDR	DDRC
-#define SNES_CLOCK_PORT	PORTC
-#define SNES_CLOCK_BIT	(1<<5)
+#define SNES_CLOCK_DDR	DDRD
+#define SNES_CLOCK_PORT	PORTD
+#define SNES_CLOCK_BIT	(1<<1)
 
-#define SNES_DATA_PORT	PORTC
-#define SNES_DATA_DDR	DDRC
-#define SNES_DATA_PIN	PINC
-#define SNES_DATA_BIT1	(1<<3)	/* controller 1 */
-#define SNES_DATA_BIT2	(1<<2)	/* controller 2 */
-#define SNES_DATA_BIT3	(1<<1)	/* controller 3 */
-#define SNES_DATA_BIT4	(1<<0)	/* controller 4 */
+#define SNES_DATA_PORT	PORTB
+#define SNES_DATA_DDR	DDRB
+#define SNES_DATA_PIN	PINB
+#define SNES_DATA_BIT1	(1<<2)	/* controller 1 */
+#define SNES_DATA_BIT2	(1<<3)	/* controller 2 */
+#define SNES_DATA_BIT3	(1<<4)	/* controller 3 */
+#define SNES_DATA_BIT4	(1<<5)	/* controller 4 */
 
-#define MULTITAP_SELECT_PORT	PORTB
-#define MULTITAP_SELECT_DDR		DDRB
-#define MULTITAP_SELECT_PIN		PINB
-#define MULTITAP_SELECT_BIT		(1<<5)
+#define MULTITAP_SELECT_PORT	PORTC
+#define MULTITAP_SELECT_DDR		DDRC
+#define MULTITAP_SELECT_PIN		PINC
+#define MULTITAP_SELECT_BIT		(1<<2)
 
 /********* IO port manipulation macros **********/
 #define SNES_LATCH_LOW()	do { SNES_LATCH_PORT &= ~(SNES_LATCH_BIT); } while(0)
@@ -79,7 +79,7 @@ void disableLiveAutodetect(void)
 
 static void autoDetectSNESMultiTap(void)
 {
-	// Detection is done by observing that DATA2 becomes 
+	// Detection is done by observing that DATA2 becomes
 	// low when LATCH is high.
 	//
 	// Not sure which state of MTAP_SELECT_HIGH is reliable
@@ -130,7 +130,7 @@ static void autoDetectFourScore(void)
 	{
 		_delay_us(6);
 		SNES_CLOCK_LOW();
-		
+
 		if (!SNES_GET_DATA1()) {
 			if (i==19) {
 				dat18th_low = 1;
@@ -149,7 +149,7 @@ static void autoDetectFourScore(void)
 		// only 18th data bit was low. Looks like a FOUR SCORE.
 		fourscore_mode = 1;
 	}
-		
+
 	return;
 
 }
@@ -159,11 +159,11 @@ static void fournsnesInit(void)
 	unsigned char sreg;
 	sreg = SREG;
 	cli();
-	
+
 	// clock and latch as output
 	SNES_LATCH_DDR |= SNES_LATCH_BIT;
 	SNES_CLOCK_DDR |= SNES_CLOCK_BIT;
-	
+
 	// data as input
 	SNES_DATA_DDR &= ~(SNES_DATA_BIT1 | SNES_DATA_BIT2 | SNES_DATA_BIT3 | SNES_DATA_BIT4 );
 	// enable pullup. This should prevent random toggling of pins
@@ -176,7 +176,7 @@ static void fournsnesInit(void)
 	// LATCH is Active HIGH
 	SNES_LATCH_PORT &= ~(SNES_LATCH_BIT);
 
-	
+
 	MULTITAP_SELECT_DDR |= MULTITAP_SELECT_BIT;
 	MULTITAP_SELECT_PORT |= MULTITAP_SELECT_BIT;
 
@@ -184,9 +184,9 @@ static void fournsnesInit(void)
 	nesMode = 0;
 	fournsnesUpdate();
 
-	if (!live_autodetect) {	
+	if (!live_autodetect) {
 		/* Snes controller buttons are sent in this order:
-		 * 1st byte: B Y SEL START UP DOWN LEFT RIGHT 
+		 * 1st byte: B Y SEL START UP DOWN LEFT RIGHT
 		 * 2nd byte: A X L R 1 1 1 1
 		 *
 		 * Nes controller buttons are sent in this order:
@@ -237,10 +237,10 @@ static void fournsnesUpdate_fourscore(void)
 	{
 		_delay_us(6);
 		SNES_CLOCK_LOW();
-	
-		// FourScore to be connected to ports 1 and 2	
-		tmp1 <<= 1;	
-		tmp2 <<= 1;	
+
+		// FourScore to be connected to ports 1 and 2
+		tmp1 <<= 1;
+		tmp2 <<= 1;
 		if (!SNES_GET_DATA1()) { tmp1 |= 1; }
 		if (!SNES_GET_DATA2()) { tmp2 |= 1; }
 
@@ -252,10 +252,10 @@ static void fournsnesUpdate_fourscore(void)
 	{
 		_delay_us(6);
 		SNES_CLOCK_LOW();
-	
-		// FourScore to be connected to ports 1 and 2	
-		tmp3 <<= 1;	
-		tmp4 <<= 1;	
+
+		// FourScore to be connected to ports 1 and 2
+		tmp3 <<= 1;
+		tmp4 <<= 1;
 		if (!SNES_GET_DATA1()) { tmp3 |= 1; }
 		if (!SNES_GET_DATA2()) { tmp4 |= 1; }
 
@@ -267,7 +267,7 @@ static void fournsnesUpdate_fourscore(void)
 	{
 		_delay_us(6);
 		SNES_CLOCK_LOW();
-	
+
 		_delay_us(6);
 		SNES_CLOCK_HIGH();
 	}
@@ -312,14 +312,14 @@ static void fournsnesUpdate(void)
 	unsigned char tmp3=0;
 	unsigned char tmp4=0;
 
-	if (fourscore_mode) 
+	if (fourscore_mode)
 	{
 		fournsnesUpdate_fourscore();
 		return;
 	}
 
 
-	if (multitap_mode) 
+	if (multitap_mode)
 	{
 		SNES_LATCH_HIGH();
 		_delay_us(12);
@@ -333,12 +333,12 @@ static void fournsnesUpdate(void)
 			SNES_CLOCK_LOW();
 			_delay_us(6);
 
-			tmp1 <<= 1;	
-			tmp2 <<= 1;	
+			tmp1 <<= 1;
+			tmp2 <<= 1;
 
 			if (!SNES_GET_DATA1()) { tmp1 |= 1; }
 			if (!SNES_GET_DATA2()) { tmp2 |= 1; }
-			
+
 			SNES_CLOCK_HIGH();
 			_delay_us(6);
 		}
@@ -349,12 +349,12 @@ static void fournsnesUpdate(void)
 			SNES_CLOCK_LOW();
 			_delay_us(6);
 
-			tmp1 >>= 1;	
-			tmp2 >>= 1;	
+			tmp1 >>= 1;
+			tmp2 >>= 1;
 
 			if (!SNES_GET_DATA1()) { tmp1 |= 0x80; }
 			if (!SNES_GET_DATA2()) { tmp2 |= 0x80; }
-			
+
 			SNES_CLOCK_HIGH();
 			_delay_us(6);
 		}
@@ -367,12 +367,12 @@ static void fournsnesUpdate(void)
 			SNES_CLOCK_LOW();
 			_delay_us(6);
 
-			tmp3 <<= 1;	
-			tmp4 <<= 1;	
+			tmp3 <<= 1;
+			tmp4 <<= 1;
 
 			if (!SNES_GET_DATA1()) { tmp3 |= 1; }
 			if (!SNES_GET_DATA2()) { tmp4 |= 1; }
-			
+
 			SNES_CLOCK_HIGH();
 			_delay_us(6);
 		}
@@ -383,12 +383,12 @@ static void fournsnesUpdate(void)
 			SNES_CLOCK_LOW();
 			_delay_us(6);
 
-			tmp3 >>= 1;	
-			tmp4 >>= 1;	
+			tmp3 >>= 1;
+			tmp4 >>= 1;
 
 			if (!SNES_GET_DATA1()) { tmp3 |= 0x80; }
 			if (!SNES_GET_DATA2()) { tmp4 |= 0x80; }
-			
+
 			SNES_CLOCK_HIGH();
 			_delay_us(6);
 		}
@@ -396,7 +396,7 @@ static void fournsnesUpdate(void)
 
 	}
 	else // standard mode (not multitap)
-	{			
+	{
 		SNES_LATCH_HIGH();
 		_delay_us(12);
 		SNES_LATCH_LOW();
@@ -405,10 +405,10 @@ static void fournsnesUpdate(void)
 		{
 			_delay_us(6);
 			SNES_CLOCK_LOW();
-			
-			tmp1 <<= 1;	
-			tmp2 <<= 1;	
-			tmp3 <<= 1;	
+
+			tmp1 <<= 1;
+			tmp2 <<= 1;
+			tmp3 <<= 1;
 			tmp4 <<= 1;
 			if (!SNES_GET_DATA1()) { tmp1 |= 1; }
 			if (!SNES_GET_DATA2()) { tmp2 |= 1; }
@@ -431,22 +431,22 @@ static void fournsnesUpdate(void)
 
 			// notice that this is different from above. We
 			// want the bits to be in reverse-order
-			tmp1 >>= 1;	
-			tmp2 >>= 1;	
-			tmp3 >>= 1;	
-			tmp4 >>= 1;	
+			tmp1 >>= 1;
+			tmp2 >>= 1;
+			tmp3 >>= 1;
+			tmp4 >>= 1;
 			if (!SNES_GET_DATA1()) { tmp1 |= 0x80; }
 			if (!SNES_GET_DATA2()) { tmp2 |= 0x80; }
 			if (!SNES_GET_DATA3()) { tmp3 |= 0x80; }
 			if (!SNES_GET_DATA4()) { tmp4 |= 0x80; }
-			
+
 			_delay_us(6);
 			SNES_CLOCK_HIGH();
 		}
 	}
 
 
-	if (live_autodetect) {	
+	if (live_autodetect) {
 		if (tmp1==0xFF)
 			nesMode |= 1;
 		else
@@ -470,7 +470,7 @@ static void fournsnesUpdate(void)
 	}
 
 	/* Force extra bits to 0 when in NES mode. Otherwise, if
-	 * we read zeros on the wire, we will have permanantly 
+	 * we read zeros on the wire, we will have permanantly
 	 * pressed buttons */
 	last_read_controller_bytes[1] = (nesMode & 1) ? 0x00 : tmp1;
 	last_read_controller_bytes[3] = (nesMode & 2) ? 0x00 : tmp2;
@@ -487,8 +487,8 @@ static char fournsnesChanged(unsigned char report_id)
 		return last_read_controller_bytes[report_id] != last_reported_controller_bytes[report_id];
 	}
 
-	return memcmp(	&last_read_controller_bytes[report_id<<1], 
-					&last_reported_controller_bytes[report_id<<1], 
+	return memcmp(	&last_read_controller_bytes[report_id<<1],
+					&last_reported_controller_bytes[report_id<<1],
 					2);
 }
 
@@ -559,7 +559,7 @@ static char fournsnesBuildReport(unsigned char *reportBuffer, char id)
 	 *
 	 * last_read_controller_bytes[] structure in FOUR SCORE mode:
 	 *
-	 *  A B SEL START UP DOWN LEFT RIGHT 
+	 *  A B SEL START UP DOWN LEFT RIGHT
 	 *
 	 * [0] : NES controller 1 data
 	 * [1] : NES controller 2 data
@@ -596,8 +596,8 @@ static char fournsnesBuildReport(unsigned char *reportBuffer, char id)
 			reportBuffer[3] = snesReorderButtons(&last_read_controller_bytes[idx*2]);
 	}
 
-	memcpy(&last_reported_controller_bytes[idx*2], 
-			&last_read_controller_bytes[idx*2], 
+	memcpy(&last_reported_controller_bytes[idx*2],
+			&last_read_controller_bytes[idx*2],
 			2);
 
 	return 4;
@@ -724,4 +724,3 @@ Gamepad *fournsnesGetGamepad(void)
 
 	return &SnesGamepad;
 }
-
