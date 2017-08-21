@@ -24,7 +24,7 @@ rename it to "usbconfig.h". Then edit it accordingly.
 
 /* ---------------------------- Hardware Config ---------------------------- */
 
-#define USB_CFG_IOPORTNAME      D
+#define USB_CFG_IOPORTNAME      B
 /* This is the port where the USB bus is connected. When you configure it to
  * "B", the registers PORTB, PINB and DDRB will be used.
  */
@@ -32,7 +32,7 @@ rename it to "usbconfig.h". Then edit it accordingly.
 /* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
  * This may be any bit in the port.
  */
-#define USB_CFG_DPLUS_BIT       2
+#define USB_CFG_DPLUS_BIT       1
 /* This is the bit number in USB_CFG_IOPORT where the USB D+ line is connected.
  * This may be any bit in the port. Please note that D+ must also be connected
  * to interrupt pin INT0!
@@ -155,7 +155,7 @@ rename it to "usbconfig.h". Then edit it accordingly.
  * the macros. See the file USBID-License.txt before you assign a name if you
  * use a shared VID/PID.
  */
-//#define USB_CFG_SERIAL_NUMBER   'N', 'o', 'n', 'e' 
+//#define USB_CFG_SERIAL_NUMBER   'N', 'o', 'n', 'e'
 #define USB_CFG_SERIAL_NUMBER_LEN   4
 /* Same as above for the serial number. If you don't want a serial number,
  * undefine the macros.
